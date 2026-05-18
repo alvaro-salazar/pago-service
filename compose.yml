@@ -1,0 +1,20 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: pago_postgres
+    environment:
+      POSTGRES_DB: pagodb
+      POSTGRES_USER: pago
+      POSTGRES_PASSWORD: pago123
+    ports:
+      - "5436:5432"
+    volumes:
+      - pago_pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U pago -d pagodb"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+volumes:
+  pago_pgdata:
