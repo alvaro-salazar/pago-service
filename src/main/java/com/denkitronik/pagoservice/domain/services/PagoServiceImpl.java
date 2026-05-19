@@ -54,7 +54,6 @@ public class PagoServiceImpl implements IPagoService {
         PreferenceRequest preferenceRequest = PreferenceRequest.builder()
             .items(List.of(item))
             .backUrls(backUrls)
-            .autoReturn("approved")
             .notificationUrl(webhookBaseUrl + "/pagos/webhook")
             .externalReference(request.pedidoId().toString())
             .build();

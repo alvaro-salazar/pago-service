@@ -19,7 +19,6 @@ public class PagoRestController {
     private final WebhookSignatureValidator signatureValidator;
 
     @PostMapping
-    @PreAuthorize("hasAnyRole('USER','ADMIN')")
     public ResponseEntity<PagoIniciarResponse> iniciarPago(
         @Valid @RequestBody PagoIniciarRequest request) {
         return ResponseEntity.status(HttpStatus.CREATED).body(pagoService.iniciarPago(request));
