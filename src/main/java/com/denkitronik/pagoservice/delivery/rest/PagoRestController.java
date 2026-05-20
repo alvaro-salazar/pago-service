@@ -30,16 +30,24 @@ public class PagoRestController {
         @RequestHeader(value = "x-request-id", required = false) String xRequestId,
         @RequestBody Map<String, Object> body) {
 
+        String dataId;
+
+        // Formato nuevo: {"type":"payment","data":{"id":"123"}}
         String type = (String) body.get("type");
-        if (!"payment".equals(type)) {
+        if ("payment".equals(type)) {
+            @SuppressWarnings("unchecked")
+            Map<String, Object> data = (Map<String, Object>) body.get("data");
+            dataId = data.get("id").toString();
+            signatureValidator.validate(xSignature, xRequestId, dataId);
+
+        // Formato legacy: {"topic":"payment","resource":"https://.../collections/notifications/123"}
+        } else if ("payment".equals(body.get("topic"))) {
+            String resource = (String) body.get("resource");
+            dataId = resource.substring(resource.lastIndexOf("/") + 1);
+
+        } else {
             return ResponseEntity.ok().build();
         }
-
-        @SuppressWarnings("unchecked")
-        Map<String, Object> data = (Map<String, Object>) body.get("data");
-        String dataId = data.get("id").toString();
-
-        signatureValidator.validate(xSignature, xRequestId, dataId);
 
         pagoService.procesarWebhook(Long.parseLong(dataId));
         return ResponseEntity.ok().build();

@@ -13,6 +13,7 @@ import com.mercadopago.client.preference.PreferenceClient;
 import com.mercadopago.client.preference.PreferenceBackUrlsRequest;
 import com.mercadopago.client.preference.PreferenceItemRequest;
 import com.mercadopago.client.preference.PreferenceRequest;
+import com.mercadopago.client.preference.PreferenceTaxRequest;
 import com.mercadopago.resources.payment.Payment;
 import com.mercadopago.resources.payment.PaymentRefund;
 import com.mercadopago.resources.preference.Preference;
@@ -46,9 +47,9 @@ public class PagoServiceImpl implements IPagoService {
             .build();
 
         PreferenceBackUrlsRequest backUrls = PreferenceBackUrlsRequest.builder()
-            .success("http://localhost:4200/pago/exitoso")
-            .failure("http://localhost:4200/pago/fallido")
-            .pending("http://localhost:4200/pago/pendiente")
+            .success(webhookBaseUrl + "/pago/exitoso")
+            .failure(webhookBaseUrl + "/pago/fallido")
+            .pending(webhookBaseUrl + "/pago/pendiente")
             .build();
 
         PreferenceRequest preferenceRequest = PreferenceRequest.builder()
@@ -56,6 +57,10 @@ public class PagoServiceImpl implements IPagoService {
             .backUrls(backUrls)
             .notificationUrl(webhookBaseUrl + "/pagos/webhook")
             .externalReference(request.pedidoId().toString())
+            .taxes(List.of(PreferenceTaxRequest.builder()
+                .type("IVA")
+                .value(java.math.BigDecimal.ZERO)
+                .build()))
             .build();
 
         try {
@@ -78,6 +83,11 @@ public class PagoServiceImpl implements IPagoService {
                 pago.getMonto()
             );
 
+        } catch (com.mercadopago.exceptions.MPApiException e) {
+            log.error("Error MP API para pedido {}: status={}, body={}",
+                request.pedidoId(), e.getStatusCode(),
+                e.getApiResponse() != null ? e.getApiResponse().getContent() : "null");
+            throw new RuntimeException("Error al comunicarse con MercadoPago: " + e.getMessage(), e);
         } catch (Exception e) {
             log.error("Error al crear preferencia MP para pedido {}: {}", request.pedidoId(), e.getMessage());
             throw new RuntimeException("Error al comunicarse con MercadoPago: " + e.getMessage(), e);
