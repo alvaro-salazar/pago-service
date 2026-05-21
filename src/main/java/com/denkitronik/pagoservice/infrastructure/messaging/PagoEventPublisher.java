@@ -15,14 +15,15 @@ public class PagoEventPublisher {
 
     private final KafkaTemplate<String, Object> kafkaTemplate;
 
-    public void publicarPagoConfirmado(Long pagoId, Long pedidoId, BigDecimal monto) {
+    public void publicarPagoConfirmado(Long pagoId, Long pedidoId, Long clienteId, BigDecimal monto) {
         enviar("pagos.confirmados", pedidoId.toString(),
-            new PagoConfirmadoEvent(pagoId, pedidoId, monto));
+            new PagoConfirmadoEvent(pagoId, pedidoId, clienteId, monto, "MercadoPago"));
     }
 
-    public void publicarPagoRechazado(Long pagoId, Long pedidoId) {
+    public void publicarPagoRechazado(Long pagoId, Long pedidoId, Long clienteId) {
         enviar("pagos.rechazados", pedidoId.toString(),
-            new PagoRechazadoEvent(pagoId, pedidoId));
+            new PagoRechazadoEvent(pagoId, pedidoId, clienteId,
+                "El pago fue rechazado por el procesador. Verifica tus datos e intenta nuevamente."));
     }
 
     public void publicarPagoReembolsado(Long pagoId, Long pedidoId, BigDecimal monto) {

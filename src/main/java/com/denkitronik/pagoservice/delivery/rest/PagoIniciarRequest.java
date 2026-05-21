@@ -7,6 +7,7 @@ import java.math.BigDecimal;
 
 public record PagoIniciarRequest(
     @NotNull Long pedidoId,
+    @NotNull Long clienteId,
     @NotNull @Positive BigDecimal monto,
     @NotNull @Size(min = 3, max = 200) String descripcion
 ) {}

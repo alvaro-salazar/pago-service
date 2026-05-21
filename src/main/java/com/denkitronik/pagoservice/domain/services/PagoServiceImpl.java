@@ -70,6 +70,7 @@ public class PagoServiceImpl implements IPagoService {
 
             Pago pago = Pago.builder()
                 .pedidoId(request.pedidoId())
+                .clienteId(request.clienteId())
                 .mpPreferenciaId(preference.getId())
                 .estado(EstadoPago.CREADO)
                 .monto(request.monto())
@@ -133,8 +134,8 @@ public class PagoServiceImpl implements IPagoService {
         log.info("Pago {} actualizado a {} para pedido {}", mpPaymentId, nuevoEstado, pedidoId);
 
         switch (nuevoEstado) {
-            case APROBADO  -> eventPublisher.publicarPagoConfirmado(pago.getId(), pedidoId, pago.getMonto());
-            case RECHAZADO -> eventPublisher.publicarPagoRechazado(pago.getId(), pedidoId);
+            case APROBADO  -> eventPublisher.publicarPagoConfirmado(pago.getId(), pedidoId, pago.getClienteId(), pago.getMonto());
+            case RECHAZADO -> eventPublisher.publicarPagoRechazado(pago.getId(), pedidoId, pago.getClienteId());
             default -> log.info("Estado {} no genera evento Kafka", nuevoEstado);
         }
     }

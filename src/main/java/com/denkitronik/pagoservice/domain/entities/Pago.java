@@ -20,6 +20,9 @@ public class Pago {
     @Column(nullable = false)
     private Long pedidoId;
 
+    @Column(nullable = false)
+    private Long clienteId;
+
     @Column(length = 64)
     private String mpPreferenciaId;
 

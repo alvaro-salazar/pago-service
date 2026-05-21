@@ -1,3 +1,3 @@
 package com.denkitronik.pagoservice.infrastructure.messaging;
 
-public record PagoRechazadoEvent(Long pagoId, Long pedidoId) {}
+public record PagoRechazadoEvent(Long pagoId, Long pedidoId, Long clienteId, String motivo) {}
