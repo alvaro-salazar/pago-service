@@ -16,19 +16,19 @@ public class PagoEventPublisher {
     private final KafkaTemplate<String, Object> kafkaTemplate;
 
     public void publicarPagoConfirmado(Long pagoId, Long pedidoId, Long clienteId, BigDecimal monto) {
-        enviar("pagos.confirmados", pedidoId.toString(),
-            new PagoConfirmadoEvent(pagoId, pedidoId, clienteId, monto, "MercadoPago"));
+        var payload = new PagoConfirmadoEvent(pagoId, pedidoId, clienteId, monto, "MercadoPago");
+        enviar("pagos.confirmados", pedidoId.toString(), EventoBase.of("PagoConfirmado", payload));
     }
 
     public void publicarPagoRechazado(Long pagoId, Long pedidoId, Long clienteId) {
-        enviar("pagos.rechazados", pedidoId.toString(),
-            new PagoRechazadoEvent(pagoId, pedidoId, clienteId,
-                "El pago fue rechazado por el procesador. Verifica tus datos e intenta nuevamente."));
+        var payload = new PagoRechazadoEvent(pagoId, pedidoId, clienteId,
+            "El pago fue rechazado por el procesador. Verifica tus datos e intenta nuevamente.");
+        enviar("pagos.rechazados", pedidoId.toString(), EventoBase.of("PagoRechazado", payload));
     }
 
     public void publicarPagoReembolsado(Long pagoId, Long pedidoId, BigDecimal monto) {
-        enviar("pagos.reembolsados", pedidoId.toString(),
-            new PagoReembolsadoEvent(pagoId, pedidoId, monto));
+        var payload = new PagoReembolsadoEvent(pagoId, pedidoId, monto);
+        enviar("pagos.reembolsados", pedidoId.toString(), EventoBase.of("PagoReembolsado", payload));
     }
 
     private void enviar(String topic, String key, Object mensaje) {
