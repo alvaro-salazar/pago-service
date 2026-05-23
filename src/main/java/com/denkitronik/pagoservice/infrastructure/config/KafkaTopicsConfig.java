@@ -22,4 +22,9 @@ public class KafkaTopicsConfig {
     public NewTopic topicPagosReembolsados() {
         return TopicBuilder.name("pagos.reembolsados").partitions(3).replicas(1).build();
     }
+
+    @Bean
+    public NewTopic topicPagosReembolsosSolicitados() {
+        return TopicBuilder.name("pagos.reembolsos.solicitados").partitions(3).replicas(1).build();
+    }
 }

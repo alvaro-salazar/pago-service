@@ -180,4 +180,30 @@ public class PagoServiceImpl implements IPagoService {
         eventPublisher.publicarPagoReembolsado(pagoId, pago.getPedidoId(), montoFinal);
         log.info("Reembolso de {} procesado para pago {}, pedido {}", montoFinal, pagoId, pago.getPedidoId());
     }
+
+    /**
+     * Reembolsa el pago asociado a un pedido. Llamado por ReembolsoSagaListener
+     * cuando inventario-service no puede satisfacer la reserva.
+     */
+    @Transactional
+    public void reembolsarPorPedido(Long pedidoId) {
+        pagoRepository.findByPedidoId(pedidoId).ifPresentOrElse(
+            pago -> {
+                if (pago.getEstado() != EstadoPago.APROBADO) {
+                    log.warn("Pago para pedido {} no está APROBADO (estado: {}). No se puede reembolsar.",
+                             pedidoId, pago.getEstado());
+                    return;
+                }
+                // Reusar el método existente reembolsar() con monto null = reembolso total
+                try {
+                    reembolsar(pago.getId(), null);
+                } catch (Exception e) {
+                    log.error("Error al reembolsar pago {} para pedido {}: {}",
+                              pago.getId(), pedidoId, e.getMessage());
+                    throw e;
+                }
+            },
+            () -> log.error("No se encontró pago para pedido {} — no se puede compensar", pedidoId)
+        );
+    }
 }
